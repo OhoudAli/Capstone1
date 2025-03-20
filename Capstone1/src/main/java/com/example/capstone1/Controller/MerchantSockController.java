@@ -76,7 +76,7 @@ public class MerchantSockController {
 
     }
 
-
+// need improve
     @PostMapping("/buy/{userId}/{productId}/{merchantId}")
     public ResponseEntity buyProduct(@PathVariable String userId, @PathVariable String productId, @PathVariable String merchantId) {
         String buyValid = merchantStockService.buyProduct(userId, productId, merchantId);
@@ -85,13 +85,14 @@ public class MerchantSockController {
         }
         return ResponseEntity.status(400).body(new ApiResponse(buyValid));
     }
-
+// good
     @GetMapping("/discount/{userId}/{merchantId}")
     public ResponseEntity getDiscount(@PathVariable String userId, @PathVariable String merchantId) {
         double discount = merchantStockService.getUserDiscount(userId, merchantId);
         return ResponseEntity.status(200).body(new ApiResponse("Discount for user: " + (discount * 100) + "%"));
     }
 
+    // rating based on the product the merchant sale
     @PostMapping("/rateMerchant/{merchantID}/{rating}")
     public ResponseEntity rateMerchant(@PathVariable String merchantID, @PathVariable int rating) {
         boolean ratedSuccessfully = merchantStockService.merchantRate(merchantID, rating);
@@ -100,7 +101,7 @@ public class MerchantSockController {
         }
         return ResponseEntity.status(400).body(new ApiResponse("Failed to rate merchant"));
     }
-
+// user searching for specific product that merchant has
     @PostMapping("/return/{userId}/{productId}/{merchantId}")
     public ResponseEntity returnProduct(@PathVariable String userId, @PathVariable String productId,@PathVariable String merchantId) {
         boolean returned = merchantStockService.returnProduct(userId, productId, merchantId);
@@ -120,9 +121,18 @@ public class MerchantSockController {
         return ResponseEntity.ok(new ApiResponse("Discount applied successfully"));
     }
 
+    // calc average rate that the merchant has
     @GetMapping("/averageRating/{merchantID}")
     public ResponseEntity getAverageRating(@PathVariable String merchantID) {
         double avgRating = merchantStockService.calculateAverageRating(merchantID);
         return ResponseEntity.ok(avgRating);
     }
+
+    // check if the stock are in the minimum
+    @GetMapping("/checkStock/{productID}/{merchantID}")
+    public ResponseEntity checkStockLevel(@PathVariable String productID, @PathVariable String merchantID) {
+        String message = merchantStockService.checkStockLevel(productID, merchantID);
+        return ResponseEntity.ok(new ApiResponse(message));
+    }
+
 }

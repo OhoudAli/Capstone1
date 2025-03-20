@@ -28,6 +28,8 @@ public class MerchantStockService {
     }
 
 
+
+
     public ArrayList<MerchantStock> getMerchantStocks(){
         return merchantStocks;
     }
@@ -64,114 +66,106 @@ public class MerchantStockService {
 
 
 
-    public boolean addNewStock(String productId,String merchantId,  int amount){
-        boolean checkMerchant = false;
-        for (Merchant m : merchantService.getMerchants()) {
-            if (m.getId().equals(merchantId)) {
-                checkMerchant = true;
-                break;
-            }
+public boolean addNewStock(String productId, String merchantId, int amount) {
+    boolean checkMerchant = false;
+    System.out.println("Checking for merchant with ID: " + merchantId);
+    for (Merchant m : merchantService.getMerchants()) {
+        System.out.println("Available merchant: " + m.getId());
+        if (m.getId().equals(merchantId)) {
+            checkMerchant = true;
+            break;
         }
-
-        if (!checkMerchant) {
-            System.out.println("Merchant not found: " + merchantId);
-
-            return false;
-        }
-        boolean checkProduct = false;
-        for(Product p: productService.getProducts()){
-            if(p.getId().equals(productId)){
-                checkProduct =true;
-                break;
-            }
-        }
-        if(!checkProduct){
-            System.out.println("Product not found: " + productId);
-
-            return false;
-        }
-
-        for (MerchantStock m : merchantStocks) {
-            if (m.getProductID().equals(productId) && m.getMerchantID().equals(merchantId)) {
-                m.setStock(m.getStock() + amount);
-                System.out.println("Updated stock: " + m.getStock());
-                return true;
-            }
-        }
-//        System.out.println("Creating new stock for product: " + productId + " and merchant: " + merchantId);
-//        MerchantStock newStock = new MerchantStock(productId, merchantId,);
-//        merchantStocks.add(newStock);
-
-        return true;
-
     }
 
-
-    public String buyProduct(String userID , String productID , String merchantID ){
-        User userValid = null;
-        for(User u: userService.getUsers()){
-            if(u.getId().equals(userID)){
-                userValid = u;
-                break;
-            }
-        }
-        MerchantStock mValid = null ;
-        for (MerchantStock s : merchantStocks) {
-            if (s.getProductID().equals(productID) && s.getMerchantID().equals(merchantID)) {
-                mValid = s;
-                break;
-            }
-        }
-
-      Product pValid = null;
-      for(Product p: productService.getProducts()){
-          if(p.getId().equals(productID)){
-              pValid = p;
-              break;
-          }
-      }
-
-        Category cValid = null;
-      for (Category c: categoryService.getCategories()){
-          if (pValid != null && c.getId().equals(pValid.getCategoryID())) {
-              cValid = c;
-              break;
-          }
-      }
-
-      if(userValid == null){
-          return "user is not found";
-      }
-
-      if(pValid== null){
-          return "product not found ";
-      }
-      if(mValid == null){
-          return "merchant not found ";
-      }
-      if(cValid== null){
-          return "category  not found";
-      }
-
-
-
-         if(mValid.getStock()<=0){
-             return "Product out of stock";
-         }
-         if(userValid.getBalance()< pValid.getPrice()){
-             return "you do not have enough money";
-         }
-
-         mValid.setStock(mValid.getStock()-1);
-         userValid.setBalance(userValid.getBalance()-pValid.getPrice());
-
-         //i add this method to store the user purchases
-         userPurchases.add(userID+"-"+merchantID);
-
-         return "buy product successfully";
-
-
+    if (checkMerchant) {
+        System.out.println("Merchant not found: " + merchantId);
+        return false;
     }
+
+    boolean checkProduct = false;
+    System.out.println("Checking for product with ID: " + productId);
+    for (Product p : productService.getProducts()) {
+        System.out.println("Available product: " + p.getId());
+        if (p.getId().equals(productId)) {
+            checkProduct = true;
+            break;
+        }
+    }
+    if (checkProduct) {
+        System.out.println("Product not found: " + productId);
+        return false;
+    }
+
+    for (MerchantStock m : merchantStocks) {
+        if (m.getProductID().equals(productId) && m.getMerchantID().equals(merchantId)) {
+            m.setStock(m.getStock() + amount);
+            System.out.println("Updated stock: " + m.getStock());
+            return true;
+        }
+    }
+
+    return true;
+}
+
+
+
+public String buyProduct(String userID, String productID, String merchantID) {
+    User userValid = null;
+    for (User u : userService.getUsers()) {
+        if (u.getId().equals(userID)) {
+            userValid = u;
+            break;
+        }
+    }
+    if (userValid == null) {
+        return "User not found";
+    }
+    Product pValid = null;
+    for (Product p : productService.getProducts()) {
+        if (p.getId().equals(productID)) {
+            pValid = p;
+            break;
+        }
+    }
+    if (pValid == null) {
+        return "Product not found";
+    }
+    MerchantStock mValid = null;
+    for (MerchantStock s : merchantStocks) {
+        if (s.getProductID().equals(productID) && s.getMerchantID().equals(merchantID)) {
+            mValid = s;
+            break;
+        }
+    }
+    if (mValid == null) {
+        return "Merchant not found or does not sell this product";
+    }
+
+    boolean categoryExists = false;
+    for (Category c : categoryService.getCategories()) {
+        if (c.getId().equals(pValid.getCategoryID())) {
+            categoryExists = true;
+            break;
+        }
+    }
+    if (!categoryExists) {
+        return "Category not found for this product";
+    }
+
+    if (mValid.getStock() <= 0) {
+        return "Product is out of stock";
+    }
+    if (userValid.getBalance() < pValid.getPrice()) {
+        return "Insufficient balance";
+    }
+    mValid.setStock(mValid.getStock() - 1);
+    userValid.setBalance(userValid.getBalance() - pValid.getPrice());
+
+    userPurchases.add(userID + "-" + merchantID);
+
+    return "Product purchased successfully";
+}
+
 
 
     public double getUserDiscount(String userID, String merchantID) {
@@ -191,10 +185,6 @@ public class MerchantStockService {
     }
 
 
-    /// idea :discount for user who buy at least ones from the same merchant
-    /// idea 2: user can search for best merchant and best product the merchant have
-    ///  idea 3: if the user want to return something to merchant
-    /// idea 4: user can rate the merchant --> if the merchant rate is less than 3 should make new price less than the old price
     public boolean returnProduct(String userID, String productID, String merchantID) {
         String purchaseRecord = userID + "-" + merchantID;
         if (userPurchases.contains(purchaseRecord)) {
@@ -234,6 +224,8 @@ public class MerchantStockService {
         } else {
             return 0.0;
         }
+
+
     }
 
     public void applyDiscountToMerchantProducts(String merchantID) {
@@ -242,7 +234,7 @@ public class MerchantStockService {
                 Product product = findProductById(stock.getProductID());
                 if (product != null) {
                     double oldPrice = product.getPrice();
-                    double newPrice = oldPrice * 0.9; // 10% discount
+                    double newPrice = oldPrice * 0.9;
                     product.setPrice((int) newPrice);
                     System.out.println("Product " + product.getName() + " price reduced from " + oldPrice + " to " + newPrice);
                 }
@@ -268,4 +260,24 @@ public class MerchantStockService {
         badMerchant(merchantID, rating);
         return true;
     }
+
+
+    public String checkStockLevel(String productID, String merchantID) {
+        for (MerchantStock stock : merchantStocks) {
+            if (stock.getProductID().equals(productID) && stock.getMerchantID().equals(merchantID)) {
+                if (stock.getStock() <= 10) {
+                    return "Warning: Stock is low (≤ 10). Please add more products!";
+                } else {
+                    return "Stock level is good: " + stock.getStock();
+                }
+            }
+        }
+        return "Product or Merchant not found.";
+    }
+
+
 }
+/// idea :discount for user who buy at least ones from the same merchant
+/// idea 2: user can search for best merchant and best product the merchant have
+///  idea 3: if the user want to return something to merchant
+/// idea 4: user can rate the merchant --> if the merchant rate is less than 3 should make new price less than the old price

@@ -25,4 +25,6 @@ public class MerchantStock {
     @NotNull(message = "stock must not be empty")
     @Min(value = 10,message = "Stock most be more than 10 to start ")
     private int stock;
+
+
 }

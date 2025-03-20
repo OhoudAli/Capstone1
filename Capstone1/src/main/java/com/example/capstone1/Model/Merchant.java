@@ -20,6 +20,6 @@ public class Merchant {
 
 //    @NotNull(message = "rate should not be empty")
     private double rating;
-
+     private String topMerchant;
     private double merchantRate;
 }

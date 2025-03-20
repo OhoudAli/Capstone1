@@ -67,15 +67,15 @@ public class MerchantService {
 //    }
 
 
-    public Merchant getBestMerchant() {
-        Merchant bestMerchant = null;
-        double maxRating = -1;
-        for (Merchant merchant : merchants) {
-            if (merchant.getRating() > maxRating) {
-                maxRating = merchant.getRating();
-                bestMerchant = merchant;
-            }
-        }
-        return bestMerchant;
-    }
+//    public Merchant getBestMerchant() {
+//        Merchant bestMerchant = null;
+//        double maxRating = -1;
+//        for (Merchant merchant : merchants) {
+//            if (merchant.getRating() > maxRating) {
+//                maxRating = merchant.getRating();
+//                bestMerchant = merchant;
+//            }
+//        }
+//        return bestMerchant;
+//    }
 }
